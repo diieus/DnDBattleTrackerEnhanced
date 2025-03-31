@@ -4,8 +4,8 @@
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
-// @updateURL    https://gist.github.com/diieus/856efe70fb4b215d52b479e097764365/raw/7a213bdd6a6434dafb2f842c9f4784fdecd44fb1/DDBT_Enhanced-main.user.js
-// @downloadURL  https://gist.github.com/diieus/856efe70fb4b215d52b479e097764365/raw/7a213bdd6a6434dafb2f842c9f4784fdecd44fb1/DDBT_Enhanced-main.user.js
+// @updateURL    https://github.com/diieus/DnDBattleTrackerEnhanced/raw/refs/heads/main/DDBT_Enhanced-main.user.js
+// @downloadURL  https://github.com/diieus/DnDBattleTrackerEnhanced/raw/refs/heads/main/DDBT_Enhanced-main.user.js
 // @grant        none
 // ==/UserScript==
 
