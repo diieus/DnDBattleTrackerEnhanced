@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.0.4
+// @version      1.1.0
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -25,24 +25,24 @@
     }
 
 
-// Mapping de traduction (anglais -> français)
-const conditionsMap = {
-    "Blinded": "Aveuglé",
-    "Charmed": "Charmé",
-    "Deafened": "Assourdi",
-    "Exhaustion": "Épuisement",
-    "Frightened": "Effrayé",
-    "Grappled": "Agrippé",
-    "Incapacitated": "Incapable d'agir",
-    "Invisible": "Invisible\u200B", // Ajout du Zéro-width Space
-    "Paralyzed": "Paralysé",
-    "Petrified": "Pétrifié",
-    "Poisoned": "Empoisonné",
-    "Prone": "À terre",
-    "Restrained": "Entravé",
-    "Stunned": "Étourdi",
-    "Unconscious": "Inconscient"
-};
+    // Mapping de traduction (anglais -> français)
+    const conditionsMap = {
+        "Blinded": "Aveuglé",
+        "Charmed": "Charmé",
+        "Deafened": "Assourdi",
+        "Exhaustion": "Épuisement",
+        "Frightened": "Effrayé",
+        "Grappled": "Agrippé",
+        "Incapacitated": "Incapable d'agir",
+        "Invisible": "Invisible\u200B", // Ajout du Zéro-width Space
+        "Paralyzed": "Paralysé",
+        "Petrified": "Pétrifié",
+        "Poisoned": "Empoisonné",
+        "Prone": "À terre",
+        "Restrained": "Entravé",
+        "Stunned": "Étourdi",
+        "Unconscious": "Inconscient"
+    };
     // Mapping des icônes – taille 32px
     const conditionsImageMap = {
         "Aveuglé": "https://www.aidedd.org/dnd/images-conditions/blinded.png",
@@ -204,7 +204,8 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
                         ac: row.c[4] && row.c[4].v ? row.c[4].v.toString() : "",
                         hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
                         initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
-                        url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : ""
+                        url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
+                        picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
                     })).filter(monster => monster.name);
                     console.log("Données des monstres récupérées :", monsterData);
                     updateDndBeyondLinks();
@@ -473,6 +474,106 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         });
     }
 
+    function updateCreaturePicture() {
+        // Parcourir tous les creature-wrapper
+        const creatureWrappers = document.querySelectorAll('.creature-wrapper');
+        creatureWrappers.forEach(wrapper => {
+            // Récupérer le nom de la créature à partir de l'attribut aria-label (en retirant "expanded" si présent)
+            let ariaLabel = wrapper.getAttribute('aria-label') || "";
+            let creatureName = ariaLabel.replace(/ expanded/i, "").trim();
+            if (!creatureName) return;
+
+            // Trouver le monstre correspondant dans monsterData
+            let monster = monsterData.find(m => m.name.toLowerCase() === creatureName.toLowerCase());
+            if (!monster) return;
+
+            // Déterminer s'il y a une image
+            let hasImage = monster.picture && monster.picture.trim() !== "";
+
+            // Dans le wrapper, trouver l'élément expanded-creature
+            let expandedCreature = wrapper.querySelector('.expanded-creature');
+            if (!expandedCreature) return;
+
+            // Parmi les éléments avoid-break dans expandedCreature, trouver celui qui contient "Initiative"
+            let targetAvoidBreak = null;
+            let avoidBreaks = expandedCreature.querySelectorAll('.avoid-break');
+            avoidBreaks.forEach(ab => {
+                if (ab.textContent.includes("Initiative")) {
+                    targetAvoidBreak = ab;
+                }
+            });
+            if (!targetAvoidBreak) return;
+
+            // Vérifier si l'élément "Illustration" est déjà présent
+            if (targetAvoidBreak.querySelector('.Picture-stat')) return;
+
+            // Parmi les divs de stat dans ce bloc, trouver celle qui affiche "Initiative"
+            let initiativeDiv = null;
+            let statDivs = targetAvoidBreak.querySelectorAll('.expanded-creature--stat');
+            statDivs.forEach(div => {
+                if (div.textContent.includes("Initiative")) {
+                    initiativeDiv = div;
+                }
+            });
+            if (!initiativeDiv) return;
+
+            // Créer un nouvel élément de stat pour "Illustration"
+            let pictureElem = document.createElement("div");
+            pictureElem.className = "expanded-creature--stat Picture-stat";
+
+            // Créer le label "Illustration" et ajouter l'icône correspondante
+            let label = document.createElement("b");
+            label.textContent = "Illustration ";
+            if (hasImage) {
+                label.textContent += "👁";
+            } else {
+                label.textContent += "❌";
+            }
+            pictureElem.appendChild(label);
+
+            if (hasImage) {
+
+
+                // Créer le tooltip pour afficher l'image
+                let tooltip = document.createElement("div");
+                tooltip.className = "custom-tooltip image-tooltip";
+                tooltip.style.position = "absolute";
+                tooltip.style.background = "#fff";
+                tooltip.style.border = "1px solid #000";
+                tooltip.style.padding = "4px";
+                tooltip.style.zIndex = "2000";
+                tooltip.style.whiteSpace = "pre-wrap";
+                tooltip.style.display = "none";
+
+                let img = document.createElement("img");
+                img.src = monster.picture;
+                img.style.maxWidth = "300px";
+                img.style.maxHeight = "300px";
+                tooltip.appendChild(img);
+                document.body.appendChild(tooltip);
+
+                // Attacher les événements pour afficher/cacher le tooltip lors du survol du label
+                label.addEventListener("mouseenter", function(e) {
+                    const rect = label.getBoundingClientRect();
+                    tooltip.style.top = (rect.bottom + window.scrollY) + "px";
+                    tooltip.style.left = (rect.left + window.scrollX) + "px";
+                    tooltip.style.display = "block";
+                });
+                label.addEventListener("mouseleave", function(e) {
+                    tooltip.style.display = "none";
+                });
+            }
+            // Insérer le nouvel élément juste après l'élément initiativeDiv dans le même avoid-break.
+            if (initiativeDiv.nextSibling) {
+                initiativeDiv.parentNode.insertBefore(pictureElem, initiativeDiv.nextSibling);
+            } else {
+                initiativeDiv.parentNode.appendChild(pictureElem);
+            }
+        });
+    }
+
+
+
     // --- Observers et mises à jour périodiques ---
     function observeForSearchBar() {
         const target = document.body;
@@ -495,6 +596,8 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
     setInterval(updateDndBeyondLinks, 1000);
     setInterval(updateConditions, 1000);
     setInterval(updateNoteConditions, 1000);
+    setInterval(updateCreaturePicture, 1000);
+
 
     window.addEventListener('load', function() {
         createSearchElements();
@@ -502,5 +605,6 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         observeForSearchBar();
         updateConditions();
         updateNoteConditions();
+        updateCreaturePicture();
     });
 })();
