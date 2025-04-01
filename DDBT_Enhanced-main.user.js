@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.1.0
+// @version      1.1.1
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -12,7 +12,7 @@
 (function() {
     'use strict';
 
-    let monsterData = [];       // { name, ac, hp, initiative, url }
+    let monsterData = []; // { name, ac, hp, initiative, url }
     let selectedMonster = null;
 
     // --- Fonctions utilitaires ---
@@ -20,6 +20,7 @@
         const match = text.match(/\(([^)]+)\)/);
         return match ? match[1] : "";
     }
+
     function removeParentheses(text) {
         return text.replace(/\(.*?\)/g, '').trim();
     }
@@ -195,23 +196,23 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         fetch(url)
             .then(response => response.text())
             .then(data => {
-            const jsonData = data.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
-            if (jsonData && jsonData[1]) {
-                const obj = JSON.parse(jsonData[1]);
-                if (obj.table && obj.table.rows) {
-                    monsterData = obj.table.rows.map(row => ({
-                        name: row.c[0] && row.c[0].v ? row.c[0].v : "",
-                        ac: row.c[4] && row.c[4].v ? row.c[4].v.toString() : "",
-                        hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
-                        initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
-                        url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
-                        picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
-                    })).filter(monster => monster.name);
-                    console.log("Données des monstres récupérées :", monsterData);
-                    updateDndBeyondLinks();
+                const jsonData = data.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
+                if (jsonData && jsonData[1]) {
+                    const obj = JSON.parse(jsonData[1]);
+                    if (obj.table && obj.table.rows) {
+                        monsterData = obj.table.rows.map(row => ({
+                            name: row.c[0] && row.c[0].v ? row.c[0].v : "",
+                            ac: row.c[4] && row.c[4].v ? row.c[4].v.toString() : "",
+                            hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
+                            initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
+                            url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
+                            picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
+                        })).filter(monster => monster.name);
+                        console.log("Données des monstres récupérées :", monsterData);
+                        updateDndBeyondLinks();
+                    }
                 }
-            }
-        })
+            })
             .catch(err => console.error("Erreur lors de la récupération des données :", err));
     }
 
@@ -222,8 +223,12 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
             element.focus();
             const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
             nativeInputValueSetter.call(element, value);
-            element.dispatchEvent(new Event('input', { bubbles: true }));
-            element.dispatchEvent(new Event('change', { bubbles: true }));
+            element.dispatchEvent(new Event('input', {
+                bubbles: true
+            }));
+            element.dispatchEvent(new Event('change', {
+                bubbles: true
+            }));
             element.blur();
         }
     }
@@ -480,7 +485,10 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         creatureWrappers.forEach(wrapper => {
             // Récupérer le nom de la créature à partir de l'attribut aria-label (en retirant "expanded" si présent)
             let ariaLabel = wrapper.getAttribute('aria-label') || "";
-            let creatureName = ariaLabel.replace(/ expanded/i, "").trim();
+            let creatureName = ariaLabel
+                .replace(/ expanded/i, "") // Supprime "expanded"
+                .replace(/\s*#\d+/g, "") // Supprime les "#123" avec espaces éventuels
+                .trim(); // Nettoie les espaces restants
             if (!creatureName) return;
 
             // Trouver le monstre correspondant dans monsterData
@@ -577,7 +585,10 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
     // --- Observers et mises à jour périodiques ---
     function observeForSearchBar() {
         const target = document.body;
-        const config = { childList: true, subtree: true };
+        const config = {
+            childList: true,
+            subtree: true
+        };
         const callback = function(mutationsList) {
             if (document.getElementById("combobox-create-creature-form-name") &&
                 !document.getElementById("monster-search-input")) {
@@ -591,7 +602,10 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
     const linkObserver = new MutationObserver(() => {
         updateDndBeyondLinks();
     });
-    linkObserver.observe(document.body, { childList: true, subtree: true });
+    linkObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
 
     setInterval(updateDndBeyondLinks, 1000);
     setInterval(updateConditions, 1000);
