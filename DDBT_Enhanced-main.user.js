@@ -33,7 +33,7 @@
         "Frightened": "Effrayé",
         "Grappled": "Agrippé",
         "Incapacitated": "Incapable d'agir",
-        "Invisible": "Invisible",
+        "Invisible": "Invisible&#8203;", //&#8203; = Zéro-width space
         "Paralyzed": "Paralysé",
         "Petrified": "Pétrifié",
         "Poisoned": "Empoisonné",
