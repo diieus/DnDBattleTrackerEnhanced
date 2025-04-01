@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.0.2
+// @version      1.0.3
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -133,25 +133,59 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
     // Mapping des résumés des effets (affichés directement dans la note)
     const conditionSummaries = {
         "Aveuglé": `
-        <span style="font-weight: bold; text-decoration: line-through;">Vision</span> &#128065;<br>
-        &#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span><br>
-        &#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold; text-decoration: line-through;">Vision</span> &#128065;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span><br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
         `,
-        "À terre": "PROUT en V2",
-        "Épuisement": "Résumé pour Épuisement…",
-        "Agrippé": "Résumé pour Agrippé…",
+        "À terre": `
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage (CaC)</span><br>
+		<span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8592;Désavantage (Dist)</span><br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
+        `,
+        "Épuisement": `
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage (si nv 3+)</span>
+        `,
+        "Agrippé": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold; text-decoration: line-through;">Vitesse</span> &#127939;
+        `,
         "Assourdi": `
-        <span style="font-weight: bold; text-decoration: line-through;">Ouïe</span> &#128066;<br>
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold; text-decoration: line-through;">Ouïe</span> &#128066;
         `,
-        "Effrayé": "Résumé pour Effrayé…",
-        "Empoisonné": "Résumé pour Empoisonné…",
-        "Entravé": "Résumé pour Entravé…",
-        "Étourdi": "Résumé pour Étourdi…",
-        "Incapable d'agir": "Résumé pour Incapable d'agir…",
-        "Inconscient": "Résumé pour Inconscient…",
-        "Invisible": "Résumé pour Invisible…",
-        "Paralysé": "Résumé pour Paralysé…",
-        "Pétrifié": "Résumé pour Pétrifié…"
+        "Effrayé": `
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
+        `,
+        "Empoisonné": `
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
+        `,
+        "Entravé": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold; text-decoration: line-through;">Vitesse</span> &#127939;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span><br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8594;Désavantage</span>
+        `,
+        "Étourdi": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span>
+        `,
+        "Incapable d'agir": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;
+        `,
+        "Inconscient": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span>
+        `,
+        "Invisible": `
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8592;Désavantage</span><br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8594;Avantage</span>
+        `,
+        "Paralysé": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span>
+        `,
+        "Pétrifié": `
+        <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;<br>
+		<span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Immunisé</span> &#128737;<br>
+        <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span>
+        `
     };
 
     // --- Récupération des données depuis la Google Sheet ---
@@ -469,4 +503,3 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         updateNoteConditions();
     });
 })();
-
