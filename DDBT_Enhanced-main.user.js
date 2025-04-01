@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.1.1
+// @version      1.1.2
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -21,9 +21,11 @@
         return match ? match[1] : "";
     }
 
-    function removeParentheses(text) {
-        return text.replace(/\(.*?\)/g, '').trim();
+    function extractFirstNumber(text) {
+        const match = text.match(/\d+/);
+        return match ? match[0] : "";
     }
+
 
 
     // Mapping de traduction (anglais -> français)
@@ -192,29 +194,54 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 
     // --- Récupération des données depuis la Google Sheet ---
     function fetchMonsterData() {
-        const url = "https://docs.google.com/spreadsheets/d/1ooQv-5Amjq-z-Cb71cODHM_EfurF79Ax7OrUCuSlybY/gviz/tq?tqx=out:json&sheet=MONSTERS_DB";
-        fetch(url)
-            .then(response => response.text())
-            .then(data => {
+        const sheets = [
+            { name: "MONSTERS_DB", priority: 1 },
+            { name: "FOES_DB", priority: 2 },
+            { name: "FRIENDS_DB", priority: 3 }
+        ];
+
+        const baseUrl = "https://docs.google.com/spreadsheets/d/1ooQv-5Amjq-z-Cb71cODHM_EfurF79Ax7OrUCuSlybY/gviz/tq?tqx=out:json&sheet=";
+        const mergedData = new Map();
+
+        Promise.all(
+            sheets.map(sheet =>
+                       fetch(baseUrl + sheet.name)
+                       .then(response => response.text())
+                       .then(data => {
                 const jsonData = data.match(/google\.visualization\.Query\.setResponse\((.*)\)/);
                 if (jsonData && jsonData[1]) {
                     const obj = JSON.parse(jsonData[1]);
                     if (obj.table && obj.table.rows) {
-                        monsterData = obj.table.rows.map(row => ({
-                            name: row.c[0] && row.c[0].v ? row.c[0].v : "",
-                            ac: row.c[4] && row.c[4].v ? row.c[4].v.toString() : "",
-                            hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
-                            initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
-                            url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
-                            picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
-                        })).filter(monster => monster.name);
-                        console.log("Données des monstres récupérées :", monsterData);
-                        updateDndBeyondLinks();
+                        obj.table.rows.forEach(row => {
+                            const name = row.c[0] && row.c[0].v ? row.c[0].v : "";
+                            if (!name) return;
+
+                            const entry = {
+                                name: row.c[0] && row.c[0].v ? row.c[0].v : "",
+                                ac: row.c[4] && row.c[4].v ? row.c[4].v.toString() : "",
+                                hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
+                                initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
+                                url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
+                                picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
+                            };
+
+                            const existing = mergedData.get(name);
+                            if (!existing || existing.priority < sheet.priority) {
+                                mergedData.set(name, { ...entry, priority: sheet.priority });
+                            }
+                        });
                     }
                 }
             })
-            .catch(err => console.error("Erreur lors de la récupération des données :", err));
+                       .catch(err => console.error(`Erreur lors de la récupération des données depuis ${sheet.name} :`, err))
+                      )
+        ).then(() => {
+            monsterData = Array.from(mergedData.values()).map(({ priority, ...data }) => data);
+            console.log("Données des monstres récupérées :", monsterData);
+            updateDndBeyondLinks();
+        });
     }
+
 
     // --- Mise à jour des champs pour React ---
     function updateField(id, value) {
@@ -325,11 +352,11 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
             updateField("combobox-create-creature-form-name", monster.name);
             let initValue = extractBetweenParentheses(monster.initiative);
             updateField("create-creature-form-initiative", "1d20" + initValue);
-            updateField("combobox-create-creature-form-hp", removeParentheses(monster.hp));
+            updateField("combobox-create-creature-form-hp", extractFirstNumber(monster.hp));
             if (monster.ac) {
-                const numbers = monster.ac.match(/\d+/g);
+                const numbers = extractFirstNumber(monster.ac).match(/\d+/g);
                 if (numbers && numbers.length === 1) {
-                    updateField("create-creature-form-ac", removeParentheses(monster.ac));
+                    updateField("create-creature-form-ac", extractFirstNumber(monster.ac));
                 } else {
                     console.log("Plusieurs valeurs pour la Classe d'armure détectées pour", monster.name, ". Champ AC non modifié.");
                 }
@@ -486,9 +513,9 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
             // Récupérer le nom de la créature à partir de l'attribut aria-label (en retirant "expanded" si présent)
             let ariaLabel = wrapper.getAttribute('aria-label') || "";
             let creatureName = ariaLabel
-                .replace(/ expanded/i, "") // Supprime "expanded"
-                .replace(/\s*#\d+/g, "") // Supprime les "#123" avec espaces éventuels
-                .trim(); // Nettoie les espaces restants
+            .replace(/ expanded/i, "") // Supprime "expanded"
+            .replace(/\s*#\d+/g, "") // Supprime les "#123" avec espaces éventuels
+            .trim(); // Nettoie les espaces restants
             if (!creatureName) return;
 
             // Trouver le monstre correspondant dans monsterData
