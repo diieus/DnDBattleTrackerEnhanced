@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.0.3
+// @version      1.0.4
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -24,24 +24,25 @@
         return text.replace(/\(.*?\)/g, '').trim();
     }
 
-    // Mapping de traduction (anglais -> français)
-    const conditionsMap = {
-        "Blinded": "Aveuglé",
-        "Charmed": "Charmé",
-        "Deafened": "Assourdi",
-        "Exhaustion": "Épuisement",
-        "Frightened": "Effrayé",
-        "Grappled": "Agrippé",
-        "Incapacitated": "Incapable d'agir",
-        "Invisible": "Invisible&#8203;", //&#8203; = Zéro-width space
-        "Paralyzed": "Paralysé",
-        "Petrified": "Pétrifié",
-        "Poisoned": "Empoisonné",
-        "Prone": "À terre",
-        "Restrained": "Entravé",
-        "Stunned": "Étourdi",
-        "Unconscious": "Inconscient"
-    };
+
+// Mapping de traduction (anglais -> français)
+const conditionsMap = {
+    "Blinded": "Aveuglé",
+    "Charmed": "Charmé",
+    "Deafened": "Assourdi",
+    "Exhaustion": "Épuisement",
+    "Frightened": "Effrayé",
+    "Grappled": "Agrippé",
+    "Incapacitated": "Incapable d'agir",
+    "Invisible": "Invisible\u200B", // Ajout du Zéro-width Space
+    "Paralyzed": "Paralysé",
+    "Petrified": "Pétrifié",
+    "Poisoned": "Empoisonné",
+    "Prone": "À terre",
+    "Restrained": "Entravé",
+    "Stunned": "Étourdi",
+    "Unconscious": "Inconscient"
+};
     // Mapping des icônes – taille 32px
     const conditionsImageMap = {
         "Aveuglé": "https://www.aidedd.org/dnd/images-conditions/blinded.png",
@@ -51,7 +52,7 @@
         "Effrayé": "https://www.aidedd.org/dnd/images-conditions/frightened.png",
         "Agrippé": "https://www.aidedd.org/dnd/images-conditions/grappled.png",
         "Incapable d'agir": "https://www.aidedd.org/dnd/images-conditions/incapacitated.png",
-        "Invisible": "https://www.aidedd.org/dnd/images-conditions/invisible.png",
+        "Invisible\u200B": "https://www.aidedd.org/dnd/images-conditions/invisible.png",
         "Paralysé": "https://www.aidedd.org/dnd/images-conditions/paralyzed.png",
         "Pétrifié": "https://www.aidedd.org/dnd/images-conditions/petrified.png",
         "Empoisonné": "https://www.aidedd.org/dnd/images-conditions/poisoned.png",
@@ -114,7 +115,7 @@ La créature rate automatiquement ses jets de sauvegarde de Force et de Dextéri
 Les jets d'attaque contre la créature ont un avantage.
 Toute attaque qui touche la créature est un coup critique si l'attaquant est à 1,50 mètre ou moins de la créature.`,
 
-        "Invisible": `Une créature invisible ne peut être vue sans l'aide de la magie ou un sens particulier. En ce qui concerne le fait de se cacher, la créature est considérée dans une zone à visibilité nulle. L'emplacement de la créature peut être détecté par un bruit qu'elle fait ou par les traces qu'elle laisse.
+        "Invisible\u200B": `Une créature invisible ne peut être vue sans l'aide de la magie ou un sens particulier. En ce qui concerne le fait de se cacher, la créature est considérée dans une zone à visibilité nulle. L'emplacement de la créature peut être détecté par un bruit qu'elle fait ou par les traces qu'elle laisse.
 Les jets d'attaque contre la créature ont un désavantage, et les jets d'attaque de la créature ont un avantage.`,
 
         "Paralysé": `Une créature paralysée est incapable d'agir (voir l'état) et ne peut plus bouger ni parler.
@@ -173,7 +174,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold;">Ne fait rien</span> &#128683;<br>
         <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8592;Avantage</span>
         `,
-        "Invisible": `
+        "Invisible\u200B": `
         <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: red; font-weight: bold;">&#8592;Désavantage</span><br>
         <span style="display: inline-block; width: 30px;"></span>&#127919;<span style="color: green; font-weight: bold;">&#8594;Avantage</span>
         `,
