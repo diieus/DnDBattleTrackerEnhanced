@@ -139,7 +139,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
         `,
         "Épuisement": `
         <span style="display: inline-block; width: 30px;"></span>&#127922;<span style="color: red; font-weight: bold;"> -2 aux d20 / niveau d'épuisement</span><br>
-	<span style="display: inline-block; width: 30px;"></span> &#127939;<span style="color: red; font-weight: bold;"> -1,50m / niveau d"épuisement</span>
+	<span style="display: inline-block; width: 30px;"></span>&#127939;<span style="color: red; font-weight: bold;"> -1,50m / niveau d"épuisement</span>
         `,
         "Agrippé": `
         <span style="display: inline-block; width: 30px;"></span><span style="font-weight: bold; text-decoration: line-through;">Vitesse</span> &#127939;
