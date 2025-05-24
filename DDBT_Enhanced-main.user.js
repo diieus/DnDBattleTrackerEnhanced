@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.1.7
+// @version      1.2.0
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -266,6 +266,18 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 		}
 	}
 
+	// Copie le monstre sans initiative
+	function copyMonsterWithoutInit(monster) {
+		updateField('combobox-create-creature-form-name', monster.name);
+		updateField('combobox-create-creature-form-hp', extractFirstNumber(monster.hp));
+		if (monster.ac) {
+			const nums = extractFirstNumber(monster.ac).match(/\d+/g);
+			if (nums && nums.length === 1) {
+				updateField('create-creature-form-ac', nums[0]);
+			}
+		}
+	}
+
 	// --- Barre de recherche custom ---
 	function createSearchElements() {
 		if (document.getElementById("monster-search-input")) return;
@@ -285,7 +297,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 		plusButton.textContent = "+";
 		plusButton.title = "Copier les données du monstre sélectionné";
 		plusButton.type = "button";
-		plusButton.style.marginLeft = "0";
+		//plusButton.style.marginLeft = "4px";
 
 		const suggestionContainer = document.createElement('div');
 		suggestionContainer.id = "monster-suggestions";
@@ -298,6 +310,63 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 
 		container.appendChild(searchInput);
 		container.appendChild(plusButton);
+		// === menu déroulant « Favorites » ===
+		const favorites = ['Ashrynn', 'Galel', 'Gani', 'Ahizak', 'Oloquial'];
+		const favContainer = document.createElement('div');
+
+		favContainer.style.position = 'relative';
+		favContainer.style.marginLeft = '4px';
+
+
+		const favButton = document.createElement('button');
+		//favButton.textContent = '⌄';
+        favButton.textContent = '✯';
+		favButton.title = 'Favorites';
+		favButton.type = 'button';
+		favContainer.appendChild(favButton);
+
+		const favList = document.createElement('div');
+		favList.style.position = 'absolute';
+		favList.style.top = '100%';
+		favList.style.left = '0';
+		favList.style.background = '#fff';
+		favList.style.border = '1px solid #ccc';
+		favList.style.padding = '4px';
+		favList.style.display = 'none';
+
+		favorites.forEach(name => {
+			const item = document.createElement('div');
+			item.textContent = name;
+			item.style.cursor = 'pointer';
+			item.style.padding = '2px 6px';
+			item.addEventListener('click', () => {
+				const m = monsterData.find(m => m.name === name);
+				if (m) copyMonsterWithoutInit(m);
+				favList.style.display = 'none';
+			});
+			favList.appendChild(item);
+		});
+
+		favContainer.appendChild(favList);
+		container.appendChild(favContainer);
+        // ←— Aligner les zones cliquables de "+" et "⌄"
+        [plusButton, favButton].forEach(btn => {
+            btn.style.boxSizing = 'border-box';
+            btn.style.flex = '0 0 auto';
+            btn.style.width = '40px';
+            btn.style.height = '40px';
+            btn.style.padding = '0';
+            btn.style.fontSize = '1.2em';
+        });
+
+
+		// afficher/masquer au survol
+		favButton.addEventListener('mouseenter', () => {
+			favList.style.display = 'block';
+		});
+		favContainer.addEventListener('mouseleave', () => {
+			favList.style.display = 'none';
+		});
 		container.appendChild(suggestionContainer);
 
 		function updateSuggestionPosition() {
@@ -373,6 +442,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 		if (originalInput) {
 			const originalWrapper = originalInput.parentNode;
 			originalWrapper.parentNode.insertBefore(container, originalWrapper.nextSibling);
+
 		}
 	}
 
