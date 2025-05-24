@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.2.0
+// @version      1.2.1
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -8,6 +8,8 @@
 // @downloadURL  https://github.com/diieus/DnDBattleTrackerEnhanced/raw/refs/heads/main/DDBT_Enhanced-main.user.js
 // @grant        none
 // ==/UserScript==
+
+
 
 (function() {
 	'use strict';
@@ -320,7 +322,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 
 		const favButton = document.createElement('button');
 		//favButton.textContent = '⌄';
-        favButton.textContent = '✯';
+		favButton.textContent = '✯';
 		favButton.title = 'Favorites';
 		favButton.type = 'button';
 		favContainer.appendChild(favButton);
@@ -339,6 +341,12 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 			item.textContent = name;
 			item.style.cursor = 'pointer';
 			item.style.padding = '2px 6px';
+			item.addEventListener('mouseover', () => {
+				item.style.backgroundColor = '#f0f0f0';
+			});
+			item.addEventListener('mouseout', () => {
+				item.style.backgroundColor = '';
+			});
 			item.addEventListener('click', () => {
 				const m = monsterData.find(m => m.name === name);
 				if (m) copyMonsterWithoutInit(m);
@@ -349,15 +357,15 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 
 		favContainer.appendChild(favList);
 		container.appendChild(favContainer);
-        // ←— Aligner les zones cliquables de "+" et "⌄"
-        [plusButton, favButton].forEach(btn => {
-            btn.style.boxSizing = 'border-box';
-            btn.style.flex = '0 0 auto';
-            btn.style.width = '40px';
-            btn.style.height = '40px';
-            btn.style.padding = '0';
-            btn.style.fontSize = '1.2em';
-        });
+		// ←— Aligner les zones cliquables de "+" et "⌄"
+		[plusButton, favButton].forEach(btn => {
+			btn.style.boxSizing = 'border-box';
+			btn.style.flex = '0 0 auto';
+			btn.style.width = '40px';
+			btn.style.height = '40px';
+			btn.style.padding = '0';
+			btn.style.fontSize = '1.2em';
+		});
 
 
 		// afficher/masquer au survol
@@ -397,6 +405,12 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 				div.textContent = monster.name;
 				div.style.padding = "5px";
 				div.style.cursor = "pointer";
+				div.addEventListener('mouseover', () => {
+					div.style.backgroundColor = '#f0f0f0';
+				});
+				div.addEventListener('mouseout', () => {
+					div.style.backgroundColor = '';
+				});
 				div.addEventListener('click', function() {
 					searchInput.value = monster.name;
 					selectedMonster = monster;
