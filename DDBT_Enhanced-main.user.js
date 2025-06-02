@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         D&D Battle Tracker Enhanced
-// @version      1.2.1
+// @version      1.2.2
 // @description  D&D Battle Tracker Ehanced - traductions, ajout d'images, basés sur mes DB Google Sheets
 // @author       ASI
 // @match        https://dndbattletracker.com/*
@@ -16,6 +16,8 @@
 
 	let monsterData = []; // { name, ac, hp, initiative, url }
 	let selectedMonster = null;
+
+	let friends_favorites = ['Ashrynn', 'Galel', 'Gani', 'Ahizak', 'Oloquial', 'Salim', 'Charles-Henri', 'Tran'];
 
 	// --- Fonctions utilitaires ---
 	function extractBetweenParentheses(text) {
@@ -313,7 +315,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 		container.appendChild(searchInput);
 		container.appendChild(plusButton);
 		// === menu déroulant « Favorites » ===
-		const favorites = ['Ashrynn', 'Galel', 'Gani', 'Ahizak', 'Oloquial'];
+		const favorites = friends_favorites;
 		const favContainer = document.createElement('div');
 
 		favContainer.style.position = 'relative';
@@ -616,6 +618,7 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 	}
 
 	function updateCreaturePicture() {
+		const favorites = friends_favorites;
 		// Parcourir tous les creature-wrapper
 		const creatureWrappers = document.querySelectorAll('.creature-wrapper');
 		creatureWrappers.forEach(wrapper => {
@@ -626,6 +629,12 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 				.replace(/\s*#\d+/g, "") // Supprime les "#123" avec espaces éventuels
 				.trim(); // Nettoie les espaces restants
 			if (!creatureName) return;
+
+			if (favorites.includes(creatureName)) {
+				wrapper.style.setProperty('background-image', 'none', 'important');
+				wrapper.style.setProperty('background-color', 'rgb(127, 206, 123)', 'important');
+			}
+
 
 			// Trouver le monstre correspondant dans monsterData
 			let monster = monsterData.find(m => m.name.toLowerCase() === creatureName.toLowerCase());
