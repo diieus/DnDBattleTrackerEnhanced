@@ -191,16 +191,20 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 	// --- Récupération des données depuis la Google Sheet ---
 	function fetchMonsterData() {
 		const sheets = [{
-				name: "MONSTERS_DB",
+				name: "2024_MONSTERS_DB",
 				priority: 1
 			},
 			{
-				name: "FOES_DB",
+				name: "MONSTERS_DB",
 				priority: 2
 			},
 			{
-				name: "FRIENDS_DB",
+				name: "FOES_DB",
 				priority: 3
+			},
+			{
+				name: "FRIENDS_DB",
+				priority: 4
 			}
 		];
 
@@ -226,7 +230,8 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 									hp: row.c[5] && row.c[5].v ? row.c[5].v.toString() : "",
 									initiative: row.c[8] && row.c[8].v ? row.c[8].v.toString() : "",
 									url: row.c[16] && row.c[16].v ? row.c[16].v.toString() : "",
-									picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : ""
+									picture: row.c[17] && row.c[17].v ? row.c[17].v.toString() : "",
+									source: sheet.name
 								};
 
 								const existing = mergedData.get(name);
@@ -404,7 +409,8 @@ La créature est immunisée contre le poison et la maladie, mais un poison ou un
 			}
 			filtered.forEach(monster => {
 				const div = document.createElement('div');
-				div.textContent = monster.name;
+				const prefix = monster.source === '2024_MONSTERS_DB' ? '(2024) ' : '';
+				div.textContent = prefix + monster.name;
 				div.style.padding = "5px";
 				div.style.cursor = "pointer";
 				div.addEventListener('mouseover', () => {
